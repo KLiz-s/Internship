@@ -1,11 +1,9 @@
 package com.klyndyuk.userservice.repository;
 
 import com.klyndyuk.userservice.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificationExecutor<User> {
@@ -16,4 +14,7 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
        """)
     @Modifying
     int updateActive(UUID id, boolean active);
+
+    @EntityGraph(attributePaths = {"paymentCards"})
+    Optional<User> findWithPaymentCardsById(UUID id);
 }

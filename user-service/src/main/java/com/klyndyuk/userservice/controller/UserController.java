@@ -2,6 +2,7 @@ package com.klyndyuk.userservice.controller;
 
 import com.klyndyuk.userservice.dto.request.CreateUserRequest;
 import com.klyndyuk.userservice.dto.request.UpdateUserRequest;
+import com.klyndyuk.userservice.dto.response.UserDetailsResponse;
 import com.klyndyuk.userservice.dto.response.UserResponse;
 import com.klyndyuk.userservice.service.interfaces.UserService;
 import jakarta.validation.Valid;
@@ -34,10 +35,10 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(
+    public ResponseEntity<UserDetailsResponse> getUserById(
             @PathVariable UUID id) {
 
-        UserResponse response = userService.getById(id);
+        UserDetailsResponse response = userService.getById(id);
 
         return ResponseEntity.ok(response);
     }

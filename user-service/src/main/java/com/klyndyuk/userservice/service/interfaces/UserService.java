@@ -2,6 +2,7 @@ package com.klyndyuk.userservice.service.interfaces;
 
 import com.klyndyuk.userservice.dto.request.CreateUserRequest;
 import com.klyndyuk.userservice.dto.request.UpdateUserRequest;
+import com.klyndyuk.userservice.dto.response.UserDetailsResponse;
 import com.klyndyuk.userservice.dto.response.UserResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +13,7 @@ public interface UserService {
 
     UserResponse create(CreateUserRequest request);
 
-    UserResponse getById(UUID id);
+    UserDetailsResponse getById(UUID id);
 
     Page<UserResponse> getAll(String name,
                               String surname,
