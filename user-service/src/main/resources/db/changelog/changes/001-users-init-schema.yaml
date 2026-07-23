@@ -131,3 +131,30 @@ databaseChangeLog:
               ALTER TABLE payment_cards
               ADD CONSTRAINT chk_payment_cards_number
               CHECK (number ~ '^[0-9]{16}$');
+        - sql:
+            splitStatements: false
+            stripComments: false
+            sql: |
+              CREATE OR REPLACE FUNCTION check_max_relations()
+              RETURNS TRIGGER AS $$
+              BEGIN
+                  IF (
+                      SELECT count(*)
+                      FROM payment_cards
+                      WHERE user_id = NEW.user_id
+                  ) > 5 THEN
+                      RAISE EXCEPTION 'The number of linked cards has been exceeded (maximum 5)';
+                  END IF;
+
+                  RETURN NEW;
+              END;
+              $$ LANGUAGE plpgsql;
+        - sql:
+            splitStatements: false
+            sql: |
+              CREATE CONSTRAINT TRIGGER trg_check_relations
+              AFTER INSERT OR UPDATE ON payment_cards
+              DEFERRABLE INITIALLY DEFERRED
+              FOR EACH ROW
+              EXECUTE FUNCTION check_max_relations();
+  
