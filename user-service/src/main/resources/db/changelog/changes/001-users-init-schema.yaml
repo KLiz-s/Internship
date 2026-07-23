@@ -39,6 +39,17 @@ databaseChangeLog:
                   defaultValueBoolean: true
                   constraints:
                     nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
         - createTable:
             tableName: payment_cards
             columns:
@@ -75,7 +86,17 @@ databaseChangeLog:
                   defaultValueBoolean: true
                   constraints:
                         nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
 
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
 
         - addForeignKeyConstraint:
             baseTableName: payment_cards
