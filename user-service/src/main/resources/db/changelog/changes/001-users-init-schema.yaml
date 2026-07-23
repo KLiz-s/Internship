@@ -1,0 +1,105 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-user-schema
+      author: eklyndyuk
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: surname
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: birth_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: payment_cards
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                    name: user_id
+                    type: uuid
+                    constraints:
+                        nullable: false
+              - column:
+                    name: number
+                    type: varchar(16)
+                    constraints:
+                        nullable: false
+                        unique: true
+              - column:
+                  name: holder
+                  type: varchar(100)
+                  constraints:
+                        nullable: false
+              - column:
+                    name: expiration_date
+                    type: date
+                    constraints:
+                        nullable: false
+              - column:
+                  name: active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                        nullable: false
+
+
+        - addForeignKeyConstraint:
+            baseTableName: payment_cards
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_payment_cards_user
+            onDelete: CASCADE
+
+        - createIndex:
+            tableName: payment_cards
+            indexName: idx_payment_cards_user_id
+            columns:
+              - column:
+                  name: user_id
+
+        - sql:
+            sql: |
+              ALTER TABLE users
+              ADD CONSTRAINT chk_users_birth_date
+              CHECK (birth_date <= CURRENT_DATE);
+
+        - sql:
+            sql: |
+              ALTER TABLE payment_cards
+              ADD CONSTRAINT chk_payment_cards_number
+              CHECK (number ~ '^[0-9]{16}$');
