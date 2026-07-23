@@ -27,4 +27,11 @@ public final class UserSpecification {
                         "%" + surname.toLowerCase() + "%"
                 );
     }
+
+    public static Specification<User> byFilters(String name,
+                                                String surname) {
+        return Specification
+                .where(hasName(name))
+                .and(hasSurname(surname));
+    }
 }
