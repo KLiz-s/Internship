@@ -2,6 +2,7 @@ package com.klyndyuk.userservice.service.impl;
 
 import com.klyndyuk.userservice.dto.request.CreateUserRequest;
 import com.klyndyuk.userservice.dto.request.UpdateUserRequest;
+import com.klyndyuk.userservice.dto.response.UserDetailsResponse;
 import com.klyndyuk.userservice.dto.response.UserResponse;
 import com.klyndyuk.userservice.entity.User;
 import com.klyndyuk.userservice.exception.EmailOccupiedException;
@@ -11,6 +12,8 @@ import com.klyndyuk.userservice.repository.UserRepository;
 import com.klyndyuk.userservice.service.interfaces.UserService;
 import com.klyndyuk.userservice.specification.UserSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -36,11 +39,13 @@ public class UserServiceImpl implements UserService {
         return userMapper.toResponse(savedUser);
     }
 
+
     @Override
-    public UserResponse getById(UUID id) {
-        User user = userRepository.findById(id)
+    @Cacheable(value = "users", key = "#id")
+    public UserDetailsResponse getById(UUID id) {
+        User user = userRepository.findWithPaymentCardsById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
-        return userMapper.toResponse(user);
+        return userMapper.toDetailsResponse(user);
     }
 
     @Override
@@ -56,6 +61,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "users", key = "#id")
     public UserResponse update(UUID id,
                                UpdateUserRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -74,6 +80,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "users", key = "#id")
     public void updateActive(UUID id, boolean active) {
         int updated = userRepository.updateActive(id, active);
 
