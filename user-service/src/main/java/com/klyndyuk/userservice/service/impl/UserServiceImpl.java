@@ -29,6 +29,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
+    @Transactional
     public UserResponse create(CreateUserRequest request) {
         User user = userMapper.toEntity(request);
         if (userRepository.existsByEmail(user.getEmail())) {

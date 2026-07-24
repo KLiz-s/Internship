@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +20,7 @@ public interface PaymentCardRepository extends JpaRepository<PaymentCard, UUID> 
        set c.active = :active, c.updatedAt = CURRENT_TIMESTAMP
        where c.id = :id
        """)
-    int updateActive(UUID id, boolean active);
+    int updateActive(@Param("id") UUID id, @Param("active") boolean active);
 
     @Query(
             value = """
@@ -29,5 +30,5 @@ public interface PaymentCardRepository extends JpaRepository<PaymentCard, UUID> 
             """,
             nativeQuery = true
     )
-    List<PaymentCard> findAllByUserId(UUID userId);
+    List<PaymentCard> findAllByUserId(@Param("userId") UUID userId);
 }

@@ -35,5 +35,18 @@ public class User extends BaseEntity {
     private String email;
 
     @Column(name = "active")
-    private boolean active;
+    private boolean active = true;
+
+    public void addPaymentCard(PaymentCard paymentCard) {
+        if (!paymentCards.contains(paymentCard)) {
+            paymentCards.add(paymentCard);
+            paymentCard.setUser(this);
+        }
+    }
+
+    public void removePaymentCard(PaymentCard paymentCard) {
+        if (paymentCards.remove(paymentCard)) {
+            paymentCard.setUser(null);
+        }
+    }
 }
