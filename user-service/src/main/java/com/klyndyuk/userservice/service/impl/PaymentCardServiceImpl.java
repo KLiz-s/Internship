@@ -13,6 +13,8 @@ import com.klyndyuk.userservice.repository.PaymentCardRepository;
 import com.klyndyuk.userservice.repository.UserRepository;
 import com.klyndyuk.userservice.service.interfaces.PaymentCardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,8 +32,10 @@ public class PaymentCardServiceImpl implements PaymentCardService {
     private final PaymentCardRepository paymentCardRepository;
     private final UserRepository userRepository;
     private final PaymentCardMapper paymentCardMapper;
+    private final CacheManager cacheManager;
 
     @Override
+    @CacheEvict(value = "users", key = "#request.userId")
     public PaymentCardResponse create(CreatePaymentCardRequest request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(request.getUserId()));
@@ -82,6 +86,7 @@ public class PaymentCardServiceImpl implements PaymentCardService {
     }
 
     @Override
+    @CacheEvict(value = "users", key = "#request.userId")
     @Transactional
     public PaymentCardResponse update(UUID id,
                                       UpdatePaymentCardRequest request) {
@@ -103,6 +108,13 @@ public class PaymentCardServiceImpl implements PaymentCardService {
         if (updated == 0) {
             throw new PaymentCardNotFoundException(id);
         }
+
+        PaymentCard paymentCard = paymentCardRepository.findById(id)
+                .orElseThrow(() -> new PaymentCardNotFoundException(id));
+        Objects.requireNonNull(cacheManager
+                        .getCache("users"))
+                .evict(paymentCard.getUser().getId());
+
     }
 
     @Override
