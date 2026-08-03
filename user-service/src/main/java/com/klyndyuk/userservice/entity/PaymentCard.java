@@ -27,5 +27,5 @@ public class PaymentCard extends BaseEntity {
     private LocalDate expirationDate;
 
     @Column(name = "active")
-    private boolean active;
+    private boolean active = true;
 }

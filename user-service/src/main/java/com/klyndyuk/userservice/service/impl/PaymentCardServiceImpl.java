@@ -36,6 +36,7 @@ public class PaymentCardServiceImpl implements PaymentCardService {
 
     @Override
     @CacheEvict(value = "users", key = "#request.userId")
+    @Transactional
     public PaymentCardResponse create(CreatePaymentCardRequest request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(request.getUserId()));
@@ -45,7 +46,7 @@ public class PaymentCardServiceImpl implements PaymentCardService {
         }
 
         PaymentCard paymentCard = paymentCardMapper.toEntity(request);
-        paymentCard.setUser(user);
+        user.addPaymentCard(paymentCard);
 
         PaymentCard savedPaymentCard = paymentCardRepository.save(paymentCard);
 
@@ -92,8 +93,28 @@ public class PaymentCardServiceImpl implements PaymentCardService {
                                       UpdatePaymentCardRequest request) {
         PaymentCard paymentCard = paymentCardRepository.findById(id)
                 .orElseThrow(() -> new PaymentCardNotFoundException(id));
+        User currentUser = paymentCard.getUser();
+
+        boolean userNeedUpdate = false;
+
+	if (request.getUserId() != null
+            && !request.getUserId().equals(currentUser.getId())) {
+            userNeedUpdate = true;
+	}
 
         paymentCardMapper.updateEntity(request, paymentCard);
+
+	if (userNeedUpdate) {
+	    User newUser = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new UserNotFoundException(request.getUserId()));
+
+            if (paymentCardRepository.findAllByUserId(newUser.getId()).size() >= MAX_PAYMENT_CARDS) {
+                throw new UserHasMaximumCardsException(newUser.getId());
+            }
+
+            paymentCard.setUser(newUser);
+            newUser.addPaymentCard(paymentCard);
+	}
 
         PaymentCard updatedPaymentCard = paymentCardRepository.save(paymentCard);
 
