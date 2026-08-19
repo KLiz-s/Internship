@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: order-service-postgres
+    environment:
+      POSTGRES_DB: ${ORDER_SERVICE_POSTGRES_DB}
+      POSTGRES_USER: ${ORDER_SERVICE_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${ORDER_SERVICE_POSTGRES_PASSWORD}
+    ports:
+      - "${ORDER_SERVICE_POSTGRES_PORT}:${ORDER_SERVICE_POSTGRES_PORT}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${ORDER_SERVICE_POSTGRES_USER} -d ${ORDER_SERVICE_POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+  order-service:
+    build: .
+    container_name: order-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      DB_URL: jdbc:postgresql://postgres:${ORDER_SERVICE_POSTGRES_PORT}/${ORDER_SERVICE_POSTGRES_DB}
+      DB_USERNAME: ${ORDER_SERVICE_POSTGRES_USER}
+      DB_PASSWORD: ${ORDER_SERVICE_POSTGRES_PASSWORD}
+      USER_SERVICE_URL: ${USER_SERVICE_URL}
+
+    ports:
+      - "${ORDER_SERVICE_SERVICE_PORT}:${ORDER_SERVICE_SERVICE_PORT}"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
