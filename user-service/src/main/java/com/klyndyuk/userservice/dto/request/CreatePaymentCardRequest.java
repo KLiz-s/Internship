@@ -15,9 +15,6 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 public class CreatePaymentCardRequest {
-    @NotNull
-    private UUID userId;
-
     @NotBlank
     @Pattern(regexp = "\\d{16}", message = "Card number must be 16 digits")
     private String number;

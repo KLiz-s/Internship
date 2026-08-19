@@ -11,6 +11,7 @@ import com.klyndyuk.userservice.mapper.UserMapper;
 import com.klyndyuk.userservice.repository.UserRepository;
 import com.klyndyuk.userservice.service.impl.UserServiceImpl;
 import com.klyndyuk.userservice.util.TestConstants;
+import com.klyndyuk.userservice.util.TestRole;
 import com.klyndyuk.userservice.util.TestUsers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,9 +22,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -31,7 +35,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
@@ -93,7 +100,7 @@ class UserServiceImplTest {
 
     @Test
     void getById_shouldReturnUserDetails() {
-        User user = TestUsers.createUser();
+        User user = TestUsers.createUser(TestConstants.USER_ID);
         UserDetailsResponse response = TestUsers.createDetailsResponse();
 
         given(userRepository.findWithPaymentCardsById(TestConstants.USER_ID))
@@ -102,7 +109,9 @@ class UserServiceImplTest {
         given(userMapper.toDetailsResponse(user))
                 .willReturn(response);
 
-        UserDetailsResponse result = userService.getById(TestConstants.USER_ID);
+        UserDetails userDetails = userDetails(TestConstants.USER_ID, TestRole.ROLE_USER);
+
+        UserDetailsResponse result = userService.getById(TestConstants.USER_ID, userDetails);
 
         assertThat(result).isSameAs(response);
 
@@ -120,7 +129,10 @@ class UserServiceImplTest {
         given(userRepository.findWithPaymentCardsById(TestConstants.USER_ID))
                 .willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.getById(TestConstants.USER_ID))
+        assertThatThrownBy(() -> userService.getById(
+                TestConstants.USER_ID,
+                userDetails(TestConstants.USER_ID, TestRole.ROLE_USER)
+        ))
                 .isInstanceOf(UserNotFoundException.class);
 
         then(userMapper).shouldHaveNoInteractions();
@@ -162,7 +174,7 @@ class UserServiceImplTest {
     @Test
     void update_shouldReturnUpdatedUser() {
         UpdateUserRequest request = TestUsers.createUpdateRequest();
-        User user = TestUsers.createUser();
+        User user = TestUsers.createUser(TestConstants.USER_ID);
         UserResponse response = TestUsers.createUserResponse();
 
         given(userRepository.findById(TestConstants.USER_ID))
@@ -178,7 +190,11 @@ class UserServiceImplTest {
                 .willReturn(false);
 
         UserResponse result =
-                userService.update(TestConstants.USER_ID, request);
+                userService.update(
+                        TestConstants.USER_ID,
+                        request,
+                        userDetails(TestConstants.USER_ID, TestRole.ROLE_USER)
+                );
 
         assertThat(result).isSameAs(response);
 
@@ -207,7 +223,11 @@ class UserServiceImplTest {
                 .willReturn(true);
 
         assertThatThrownBy(() ->
-                userService.update(TestConstants.USER_ID, request))
+                userService.update(
+                        TestConstants.USER_ID,
+                        request,
+                        userDetails(TestConstants.USER_ID, TestRole.ROLE_USER)
+                ))
                 .isInstanceOf(EmailOccupiedException.class);
 
         then(userRepository).should().existsByEmail(request.getEmail());
@@ -224,7 +244,8 @@ class UserServiceImplTest {
         assertThatThrownBy(() ->
                 userService.update(
                         TestConstants.USER_ID,
-                        TestUsers.createUpdateRequest()
+                        TestUsers.createUpdateRequest(),
+                        userDetails(TestConstants.USER_ID, TestRole.ROLE_USER)
                 )
         ).isInstanceOf(UserNotFoundException.class);
 
@@ -233,10 +254,17 @@ class UserServiceImplTest {
 
     @Test
     void updateActive_shouldUpdateUserStatus() {
+        given(userRepository.getReferenceById(TestConstants.USER_ID))
+                .willReturn(TestUsers.createUser(TestConstants.USER_ID));
+
         given(userRepository.updateActive(TestConstants.USER_ID, true))
                 .willReturn(1);
 
-        userService.updateActive(TestConstants.USER_ID, true);
+        userService.updateActive(
+                TestConstants.USER_ID,
+                true,
+                userDetails(TestConstants.USER_ID, TestRole.ROLE_USER)
+        );
 
         then(userRepository)
                 .should()
@@ -245,15 +273,33 @@ class UserServiceImplTest {
 
     @Test
     void updateActive_shouldThrowWhenUserNotFound() {
+        given(userRepository.getReferenceById(TestConstants.USER_ID))
+                .willReturn(TestUsers.createUser(TestConstants.USER_ID));
+
         given(userRepository.updateActive(TestConstants.USER_ID, false))
                 .willReturn(0);
 
         assertThatThrownBy(() ->
-                userService.updateActive(TestConstants.USER_ID, false)
+                userService.updateActive(
+                        TestConstants.USER_ID,
+                        false,
+                        userDetails(TestConstants.USER_ID, TestRole.ROLE_USER)
+                )
         ).isInstanceOf(UserNotFoundException.class);
 
         then(userRepository)
                 .should()
                 .updateActive(TestConstants.USER_ID, false);
+    }
+
+    private UserDetails userDetails(UUID userId, TestRole role) {
+        UserDetails userDetails = mock(UserDetails.class);
+        SimpleGrantedAuthority authority =
+                new SimpleGrantedAuthority(role.name());
+
+        lenient().when(userDetails.getUsername()).thenReturn(userId.toString());
+        lenient().doReturn(List.of(authority)).when(userDetails).getAuthorities();
+
+        return userDetails;
     }
 }

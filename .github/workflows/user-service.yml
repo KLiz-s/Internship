@@ -33,6 +33,7 @@ jobs:
       - name: Build project and run tests
         working-directory: user-service
         env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
           USER_SERVICE_POSTGRES_DB: ${{ secrets.USER_SERVICE_POSTGRES_DB }}
           USER_SERVICE_POSTGRES_USER: ${{ secrets.USER_SERVICE_POSTGRES_USER }}
           USER_SERVICE_POSTGRES_PASSWORD: ${{ secrets.USER_SERVICE_POSTGRES_PASSWORD }}

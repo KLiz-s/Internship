@@ -11,6 +11,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,13 +39,14 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDetailsResponse> getUserById(
-            @PathVariable UUID id) {
+            @PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
 
-        UserDetailsResponse response = userService.getById(id);
+        UserDetailsResponse response = userService.getById(id, userDetails);
 
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<Page<UserResponse>> getAllUsers(
             @RequestParam(required = false) String name,
@@ -61,36 +65,36 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable UUID id,
-            @Valid @RequestBody UpdateUserRequest request) {
+            @Valid @RequestBody UpdateUserRequest request, @AuthenticationPrincipal UserDetails userDetails) {
 
-        UserResponse response = userService.update(id, request);
+        UserResponse response = userService.update(id, request, userDetails);
 
         return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/activate")
     public ResponseEntity<Void> activateUser(
-            @PathVariable UUID id) {
+            @PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
 
-        userService.updateActive(id, true);
+        userService.updateActive(id, true, userDetails);
 
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<Void> deactivateUser(
-            @PathVariable UUID id) {
+            @PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
 
-        userService.updateActive(id, false);
+        userService.updateActive(id, false,  userDetails);
 
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(
-            @PathVariable UUID id) {
+            @PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
 
-        userService.delete(id);
+        userService.delete(id, userDetails);
 
         return ResponseEntity.noContent().build();
     }
