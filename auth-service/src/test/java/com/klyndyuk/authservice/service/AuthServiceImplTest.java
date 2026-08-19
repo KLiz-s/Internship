@@ -1,5 +1,7 @@
 package com.klyndyuk.authservice.service;
 
+import com.klyndyuk.authservice.client.UserClient;
+import com.klyndyuk.authservice.dto.request.CreateUserRequest;
 import com.klyndyuk.authservice.dto.request.LoginRequest;
 import com.klyndyuk.authservice.dto.request.RefreshRequest;
 import com.klyndyuk.authservice.dto.request.RegistrationRequest;
@@ -64,6 +66,9 @@ class AuthServiceImplTest {
     @Mock
     private UserDetailsWithIdService userDetailsService;
 
+    @Mock
+    private UserClient userClient;
+
     @InjectMocks
     private AuthServiceImpl authService;
 
@@ -75,12 +80,13 @@ class AuthServiceImplTest {
         when(credentialsRepository.existsByLogin(request.getLogin())).thenReturn(false);
         when(credentialsMapper.fromRegistrationRequest(request)).thenReturn(credentials);
         when(passwordEncoder.encode(request.getPassword())).thenReturn(TestConstants.ENCODED_PASSWORD);
+        when(userClient.registerUser(any())).thenReturn(TestResponses.createUserResponse());
 
         authService.register(request);
 
         ArgumentCaptor<Credentials> captor = ArgumentCaptor.forClass(Credentials.class);
 
-        verify(credentialsRepository).save(captor.capture());
+        verify(credentialsRepository).saveAndFlush(captor.capture());
 
         Credentials saved = captor.getValue();
 

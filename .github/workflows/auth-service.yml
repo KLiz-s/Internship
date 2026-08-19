@@ -39,6 +39,7 @@ jobs:
           AUTH_SERVICE_POSTGRES_PASSWORD: ${{ secrets.AUTH_SERVICE_POSTGRES_PASSWORD }}
           AUTH_SERVICE_POSTGRES_PORT: ${{ secrets.AUTH_SERVICE_POSTGRES_PORT }}
           AUTH_SERVICE_SERVICE_PORT: ${{ secrets.AUTH_SERVICE_SERVICE_PORT }}
+          USER_SERVICE_URL: ${{ secrets.SERVICES_ADDRESS_PREFIX }}:${{ secrets.USER_SERVICE_SERVICE_PORT }}
         run: ./gradlew build
 
       - name: Cache SonarQube packages

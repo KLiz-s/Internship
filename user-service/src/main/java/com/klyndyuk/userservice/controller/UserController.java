@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 @Validated
 public class UserController {
@@ -40,9 +40,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserDetailsResponse> getUserById(
             @PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
-
         UserDetailsResponse response = userService.getById(id, userDetails);
-
         return ResponseEntity.ok(response);
     }
 

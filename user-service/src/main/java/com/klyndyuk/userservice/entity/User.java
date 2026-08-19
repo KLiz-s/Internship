@@ -4,10 +4,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -15,6 +17,10 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class User extends BaseEntity {
+    @Id
+    @Column(name = "id", nullable = false, updatable = false)
+    private UUID id;
+
     @OneToMany(
         mappedBy = "user",
         cascade = CascadeType.ALL,

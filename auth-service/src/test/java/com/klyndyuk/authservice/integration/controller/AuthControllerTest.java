@@ -1,5 +1,6 @@
 package com.klyndyuk.authservice.integration.controller;
 
+import com.klyndyuk.authservice.client.UserClient;
 import com.klyndyuk.authservice.dto.request.LoginRequest;
 import com.klyndyuk.authservice.dto.request.RefreshRequest;
 import com.klyndyuk.authservice.dto.request.RegistrationRequest;
@@ -13,11 +14,15 @@ import com.klyndyuk.authservice.repository.RefreshTokenRepository;
 import com.klyndyuk.authservice.utils.TestConstants;
 import com.klyndyuk.authservice.utils.TestLoginRequests;
 import com.klyndyuk.authservice.utils.TestRegistrationRequests;
+import com.klyndyuk.authservice.utils.TestResponses;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,6 +34,9 @@ class AuthControllerTest extends BaseControllerTest {
 
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
+
+    @MockitoBean
+    private UserClient userClient;
 
     @Test
     void shouldRegister() throws Exception {
