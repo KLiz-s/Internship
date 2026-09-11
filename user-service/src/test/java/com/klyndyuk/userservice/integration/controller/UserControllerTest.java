@@ -30,7 +30,7 @@ class UserControllerTest extends BaseControllerTest {
     void create_shouldReturnCreated() throws Exception {
         CreateUserRequest request = TestUsers.createRequest();
 
-        mockMvc.perform(post("/users")
+        mockMvc.perform(post("/api/users")
                         .header(HttpHeaders.AUTHORIZATION, adminBearerToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -59,7 +59,7 @@ class UserControllerTest extends BaseControllerTest {
 
         CreateUserRequest request = TestUsers.createRequest();
 
-        mockMvc.perform(post("/users")
+        mockMvc.perform(post("/api/users")
                         .header(HttpHeaders.AUTHORIZATION, adminBearerToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -75,7 +75,7 @@ class UserControllerTest extends BaseControllerTest {
         CreateUserRequest request = TestUsers.createRequest();
         request.setEmail("invalid-email");
 
-        mockMvc.perform(post("/users")
+        mockMvc.perform(post("/api/users")
                         .header(HttpHeaders.AUTHORIZATION, adminBearerToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -89,7 +89,7 @@ class UserControllerTest extends BaseControllerTest {
     void getById_shouldReturnUser() throws Exception {
         User user = userRepository.save(TestUsers.createUser());
 
-        mockMvc.perform(get("/users/{id}", user.getId())
+        mockMvc.perform(get("/api/users/{id}", user.getId())
                         .header(HttpHeaders.AUTHORIZATION, adminBearerToken()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(user.getId().toString()))
@@ -107,7 +107,7 @@ class UserControllerTest extends BaseControllerTest {
     void getById_shouldReturnNotFound() throws Exception {
         UUID id = UUID.randomUUID();
 
-        mockMvc.perform(get("/users/{id}", id)
+        mockMvc.perform(get("/api/users/{id}", id)
                         .header(HttpHeaders.AUTHORIZATION, adminBearerToken()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
@@ -121,7 +121,7 @@ class UserControllerTest extends BaseControllerTest {
         userRepository.save(TestUsers.createUser());
         userRepository.save(TestUsers.createSecondUser());
 
-        mockMvc.perform(get("/users")
+        mockMvc.perform(get("/api/users")
                         .header(HttpHeaders.AUTHORIZATION, adminBearerToken()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(2))
@@ -138,7 +138,7 @@ class UserControllerTest extends BaseControllerTest {
         userRepository.save(TestUsers.createUser());
         userRepository.save(TestUsers.createSecondUser());
 
-        mockMvc.perform(get("/users")
+        mockMvc.perform(get("/api/users")
                         .header(HttpHeaders.AUTHORIZATION, adminBearerToken())
                         .param("name", TestConstants.USER_NAME))
                 .andExpect(status().isOk())
@@ -153,7 +153,7 @@ class UserControllerTest extends BaseControllerTest {
 
         UpdateUserRequest request = TestUsers.createUpdateRequest();
 
-        mockMvc.perform(put("/users/{id}", user.getId())
+        mockMvc.perform(put("/api/users/{id}", user.getId())
                         .header(HttpHeaders.AUTHORIZATION, adminBearerToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -182,7 +182,7 @@ class UserControllerTest extends BaseControllerTest {
         UpdateUserRequest request = TestUsers.createUpdateRequest();
         request.setEmail(first.getEmail());
 
-        mockMvc.perform(put("/users/{id}", second.getId())
+        mockMvc.perform(put("/api/users/{id}", second.getId())
                         .header(HttpHeaders.AUTHORIZATION, adminBearerToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -195,7 +195,7 @@ class UserControllerTest extends BaseControllerTest {
     void update_shouldReturnNotFound() throws Exception {
         UpdateUserRequest request = TestUsers.createUpdateRequest();
 
-        mockMvc.perform(put("/users/{id}", UUID.randomUUID())
+        mockMvc.perform(put("/api/users/{id}", UUID.randomUUID())
                         .header(HttpHeaders.AUTHORIZATION, adminBearerToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -213,7 +213,7 @@ class UserControllerTest extends BaseControllerTest {
 
         user = userRepository.save(user);
 
-        mockMvc.perform(patch("/users/{id}/activate", user.getId())
+        mockMvc.perform(patch("/api/users/{id}/activate", user.getId())
                         .header(HttpHeaders.AUTHORIZATION, adminBearerToken()))
                 .andExpect(status().isOk());
 
@@ -226,7 +226,7 @@ class UserControllerTest extends BaseControllerTest {
     void deactivate_shouldUpdateUserStatus() throws Exception {
         User user = userRepository.save(TestUsers.createUser());
 
-        mockMvc.perform(patch("/users/{id}/deactivate", user.getId())
+        mockMvc.perform(patch("/api/users/{id}/deactivate", user.getId())
                         .header(HttpHeaders.AUTHORIZATION, adminBearerToken()))
                 .andExpect(status().isOk());
 
@@ -237,7 +237,7 @@ class UserControllerTest extends BaseControllerTest {
 
     @Test
     void activate_shouldReturnNotFound() throws Exception {
-        mockMvc.perform(patch("/users/{id}/activate", UUID.randomUUID())
+        mockMvc.perform(patch("/api/users/{id}/activate", UUID.randomUUID())
                         .header(HttpHeaders.AUTHORIZATION, adminBearerToken()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404));
@@ -245,7 +245,7 @@ class UserControllerTest extends BaseControllerTest {
 
     @Test
     void deactivate_shouldReturnNotFound() throws Exception {
-        mockMvc.perform(patch("/users/{id}/deactivate", UUID.randomUUID())
+        mockMvc.perform(patch("/api/users/{id}/deactivate", UUID.randomUUID())
                         .header(HttpHeaders.AUTHORIZATION, adminBearerToken()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404));

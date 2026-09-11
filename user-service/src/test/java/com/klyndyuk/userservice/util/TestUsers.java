@@ -16,6 +16,7 @@ public final class TestUsers {
 
     public static User createUser() {
         User user = new User();
+        user.setId(TestConstants.USER_ID);
         user.setName(TestConstants.USER_NAME);
         user.setSurname(TestConstants.USER_SURNAME);
         user.setEmail(TestConstants.USER_EMAIL);
@@ -39,6 +40,7 @@ public final class TestUsers {
 
     public static User createSecondUser() {
         User user = new User();
+        user.setId(TestConstants.USER_ID_2);
         user.setName(TestConstants.USER_NAME_2);
         user.setSurname(TestConstants.USER_SURNAME_2);
         user.setEmail(TestConstants.USER_EMAIL_2);
@@ -50,6 +52,7 @@ public final class TestUsers {
 
     public static CreateUserRequest createRequest() {
         CreateUserRequest request = new CreateUserRequest();
+        request.setId(TestConstants.USER_ID);
         request.setName(TestConstants.USER_NAME);
         request.setSurname(TestConstants.USER_SURNAME);
         request.setEmail(TestConstants.USER_EMAIL);

@@ -30,6 +30,11 @@ public class GatewayRoutesConfig {
                         .uri(servicesAddressPrefix + userServiceHost + ":" + userServicePort)
                 )
 
+                .route("user-service-cards", route -> route
+                        .path("/api/cards/**")
+                        .uri(servicesAddressPrefix + userServiceHost + ":" + userServicePort)
+                )
+
                 .route("auth-service", route -> route
                         .path("/api/auth/**")
                         .uri(servicesAddressPrefix + authServiceHost + ":" + authServicePort)

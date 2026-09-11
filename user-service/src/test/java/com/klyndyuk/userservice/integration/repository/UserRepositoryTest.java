@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class UserRepositoryTest extends BaseRepositoryTest {
@@ -82,9 +84,9 @@ class UserRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void findAll_shouldFilterByName() {
-        userRepository.save(TestUsers.createUser("John", "Smith"));
-        userRepository.save(TestUsers.createUser("Jane", "Smith"));
-        userRepository.save(TestUsers.createUser("John", "Doe"));
+        userRepository.save(TestUsers.createUser(UUID.fromString("00000000-0000-0000-0000-000000000001"), "John", "Smith"));
+        userRepository.save(TestUsers.createUser(UUID.fromString("00000000-0000-0000-0000-000000000002"), "Jane", "Smith"));
+        userRepository.save(TestUsers.createUser(UUID.fromString("00000000-0000-0000-0000-000000000003"), "John", "Doe"));
 
         Page<User> page = userRepository.findAll(
                 UserSpecification.byFilters("John", null),
@@ -98,9 +100,9 @@ class UserRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void findAll_shouldFilterBySurname() {
-        userRepository.save(TestUsers.createUser("John", "Smith"));
-        userRepository.save(TestUsers.createUser("Jane", "Smith"));
-        userRepository.save(TestUsers.createUser("John", "Doe"));
+        userRepository.save(TestUsers.createUser(UUID.fromString("00000000-0000-0000-0000-000000000001"), "John", "Smith"));
+        userRepository.save(TestUsers.createUser(UUID.fromString("00000000-0000-0000-0000-000000000002"), "Jane", "Smith"));
+        userRepository.save(TestUsers.createUser(UUID.fromString("00000000-0000-0000-0000-000000000003"), "John", "Doe"));
 
         Page<User> page = userRepository.findAll(
                 UserSpecification.byFilters(null, "Smith"),
@@ -114,9 +116,9 @@ class UserRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void findAll_shouldFilterByNameAndSurname() {
-        userRepository.save(TestUsers.createUser("John", "Smith"));
-        userRepository.save(TestUsers.createUser("John", "Doe"));
-        userRepository.save(TestUsers.createUser("Jane", "Smith"));
+        userRepository.save(TestUsers.createUser(UUID.fromString("00000000-0000-0000-0000-000000000001"), "John", "Smith"));
+        userRepository.save(TestUsers.createUser(UUID.fromString("00000000-0000-0000-0000-000000000002"), "John", "Doe"));
+        userRepository.save(TestUsers.createUser(UUID.fromString("00000000-0000-0000-0000-000000000003"), "Jane", "Smith"));
 
         Page<User> page = userRepository.findAll(
                 UserSpecification.byFilters("John", "Smith"),
@@ -133,9 +135,9 @@ class UserRepositoryTest extends BaseRepositoryTest {
 
     @Test
     void findAll_shouldReturnPagedResult() {
-        userRepository.save(TestUsers.createUser("User1"));
-        userRepository.save(TestUsers.createUser("User2"));
-        userRepository.save(TestUsers.createUser("User3"));
+        userRepository.save(TestUsers.createUser(UUID.fromString("00000000-0000-0000-0000-000000000001"), "User1"));
+        userRepository.save(TestUsers.createUser(UUID.fromString("00000000-0000-0000-0000-000000000002"), "User2"));
+        userRepository.save(TestUsers.createUser(UUID.fromString("00000000-0000-0000-0000-000000000003"), "User3"));
 
         Page<User> page = userRepository.findAll(PageRequest.of(0, 2));
 

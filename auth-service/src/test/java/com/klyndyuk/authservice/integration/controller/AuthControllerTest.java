@@ -43,7 +43,7 @@ class AuthControllerTest extends BaseControllerTest {
         RegistrationRequest request =
                 TestRegistrationRequests.createRegistrationRequest();
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -67,12 +67,12 @@ class AuthControllerTest extends BaseControllerTest {
         RegistrationRequest request =
                 TestRegistrationRequests.createRegistrationRequest();
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict());
@@ -86,7 +86,7 @@ class AuthControllerTest extends BaseControllerTest {
         RegistrationRequest registrationRequest =
                 TestRegistrationRequests.createRegistrationRequest();
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequest)))
                 .andExpect(status().isOk());
@@ -94,7 +94,7 @@ class AuthControllerTest extends BaseControllerTest {
         LoginRequest loginRequest =
                 TestLoginRequests.createLoginRequest();
 
-        mockMvc.perform(post("/auth/login")
+        mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
@@ -117,7 +117,7 @@ class AuthControllerTest extends BaseControllerTest {
         RegistrationRequest registrationRequest =
                 TestRegistrationRequests.createRegistrationRequest();
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequest)))
                 .andExpect(status().isOk());
@@ -126,7 +126,7 @@ class AuthControllerTest extends BaseControllerTest {
         request.setLogin(TestConstants.LOGIN);
         request.setPassword("wrong-password");
 
-        mockMvc.perform(post("/auth/login")
+        mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized());
@@ -140,7 +140,7 @@ class AuthControllerTest extends BaseControllerTest {
         LoginRequest request =
                 TestLoginRequests.createLoginRequest();
 
-        mockMvc.perform(post("/auth/login")
+        mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized());
@@ -154,7 +154,7 @@ class AuthControllerTest extends BaseControllerTest {
         RegistrationRequest registrationRequest =
                 TestRegistrationRequests.createRegistrationRequest();
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequest)))
                 .andExpect(status().isOk());
@@ -162,7 +162,7 @@ class AuthControllerTest extends BaseControllerTest {
         LoginRequest loginRequest =
                 TestLoginRequests.createLoginRequest();
 
-        String loginResponse = mockMvc.perform(post("/auth/login")
+        String loginResponse = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
@@ -176,7 +176,7 @@ class AuthControllerTest extends BaseControllerTest {
         RefreshRequest refreshRequest = new RefreshRequest();
         refreshRequest.setToken(tokenResponse.getRefreshToken());
 
-        mockMvc.perform(post("/auth/refresh")
+        mockMvc.perform(post("/api/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(refreshRequest)))
                 .andExpect(status().isOk())
@@ -207,7 +207,7 @@ class AuthControllerTest extends BaseControllerTest {
         RefreshRequest request = new RefreshRequest();
         request.setToken("invalid-token");
 
-        mockMvc.perform(post("/auth/refresh")
+        mockMvc.perform(post("/api/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized());
@@ -221,7 +221,7 @@ class AuthControllerTest extends BaseControllerTest {
         RegistrationRequest registrationRequest =
                 TestRegistrationRequests.createRegistrationRequest();
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequest)))
                 .andExpect(status().isOk());
@@ -229,7 +229,7 @@ class AuthControllerTest extends BaseControllerTest {
         LoginRequest loginRequest =
                 TestLoginRequests.createLoginRequest();
 
-        String response = mockMvc.perform(post("/auth/login")
+        String response = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
@@ -243,7 +243,7 @@ class AuthControllerTest extends BaseControllerTest {
         assertThat(refreshTokenRepository.findAll())
                 .hasSize(1);
 
-        mockMvc.perform(post("/auth/logout")
+        mockMvc.perform(post("/api/auth/logout")
                         .header("Authorization",
                                 "Bearer " + tokens.getAccessToken()))
                 .andExpect(status().isOk());
@@ -261,7 +261,7 @@ class AuthControllerTest extends BaseControllerTest {
         RegistrationRequest registrationRequest =
                 TestRegistrationRequests.createRegistrationRequest();
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequest)))
                 .andExpect(status().isOk());
@@ -269,7 +269,7 @@ class AuthControllerTest extends BaseControllerTest {
         LoginRequest loginRequest =
                 TestLoginRequests.createLoginRequest();
 
-        String loginResponse = mockMvc.perform(post("/auth/login")
+        String loginResponse = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
@@ -280,7 +280,7 @@ class AuthControllerTest extends BaseControllerTest {
         TwoTokenResponse tokens =
                 objectMapper.readValue(loginResponse, TwoTokenResponse.class);
 
-        mockMvc.perform(post("/auth/logout")
+        mockMvc.perform(post("/api/auth/logout")
                         .header("Authorization",
                                 "Bearer " + tokens.getAccessToken()))
                 .andExpect(status().isOk());
@@ -288,7 +288,7 @@ class AuthControllerTest extends BaseControllerTest {
         RefreshRequest refreshRequest = new RefreshRequest();
         refreshRequest.setToken(tokens.getRefreshToken());
 
-        mockMvc.perform(post("/auth/refresh")
+        mockMvc.perform(post("/api/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(refreshRequest)))
                 .andExpect(status().isUnauthorized());
@@ -303,7 +303,7 @@ class AuthControllerTest extends BaseControllerTest {
         RegistrationRequest registrationRequest =
                 TestRegistrationRequests.createRegistrationRequest();
 
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registrationRequest)))
                 .andExpect(status().isOk());
@@ -311,7 +311,7 @@ class AuthControllerTest extends BaseControllerTest {
         LoginRequest loginRequest =
                 TestLoginRequests.createLoginRequest();
 
-        String loginResponse = mockMvc.perform(post("/auth/login")
+        String loginResponse = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
@@ -325,7 +325,7 @@ class AuthControllerTest extends BaseControllerTest {
         ValidateTokenRequest request = new ValidateTokenRequest();
         request.setToken(tokenResponse.getAccessToken());
 
-        mockMvc.perform(post("/auth/validate")
+        mockMvc.perform(post("/api/auth/validate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -336,7 +336,7 @@ class AuthControllerTest extends BaseControllerTest {
         ValidateTokenRequest request = new ValidateTokenRequest();
         request.setToken("invalid-token");
 
-        mockMvc.perform(post("/auth/validate")
+        mockMvc.perform(post("/api/auth/validate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized())
@@ -349,7 +349,7 @@ class AuthControllerTest extends BaseControllerTest {
         ValidateTokenRequest request = new ValidateTokenRequest();
         request.setToken("");
 
-        mockMvc.perform(post("/auth/validate")
+        mockMvc.perform(post("/api/auth/validate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());

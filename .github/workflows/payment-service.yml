@@ -1,4 +1,4 @@
-name: CI/CD for OrderService with Sonar & Docker
+name: CI/CD for PaymentService with Sonar & Docker
 
 on:
   push:
@@ -27,19 +27,18 @@ jobs:
           cache: 'gradle'
 
       - name: Grant execute permission for gradlew
-        working-directory: order-service
+        working-directory: payment-service
         run: chmod +x ./gradlew
 
       - name: Build project and run tests
-        working-directory: order-service
+        working-directory: payment-service
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          ORDER_SERVICE_POSTGRES_DB: ${{ secrets.ORDER_SERVICE_POSTGRES_DB }}
-          ORDER_SERVICE_POSTGRES_USER: ${{ secrets.ORDER_SERVICE_POSTGRES_USER }}
-          ORDER_SERVICE_POSTGRES_PASSWORD: ${{ secrets.ORDER_SERVICE_POSTGRES_PASSWORD }}
-          ORDER_SERVICE_POSTGRES_PORT: ${{ secrets.ORDER_SERVICE_POSTGRES_PORT }}
-          ORDER_SERVICE_SERVICE_PORT: ${{ secrets.ORDER_SERVICE_SERVICE_PORT }}
-          USER_SERVICE_URL: ${{ secrets.SERVICES_ADDRESS_PREFIX }}${{ secrets.USER_SERVICE_SERVICE_HOST }}:${{ secrets.USER_SERVICE_SERVICE_PORT }}
+          PAYMENT_SERVICE_MONGO_INITDB_ROOT_USERNAME: ${{ secrets.PAYMENT_SERVICE_MONGO_INITDB_ROOT_USERNAME }}
+          PAYMENT_SERVICE_MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.PAYMENT_SERVICE_MONGO_INITDB_ROOT_PASSWORD }}
+          PAYMENT_SERVICE_MONGO_INITDB_DATABASE: ${{ secrets.PAYMENT_SERVICE_MONGO_INITDB_DATABASE }}
+          PAYMENT_SERVICE_MONGO_PORT: ${{ secrets.PAYMENT_SERVICE_MONGO_PORT }}
+          PAYMENT_SERVICE_SERVICE_PORT: ${{ secrets.PAYMENT_SERVICE_SERVICE_PORT }}
         run: ./gradlew build
 
       - name: Cache SonarQube packages
@@ -50,7 +49,7 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
 
       - name: Run SonarQube Quality Analysis
-        working-directory: order-service
+        working-directory: payment-service
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
@@ -77,11 +76,11 @@ jobs:
           cache: 'gradle'
 
       - name: Grant execute permission for gradlew
-        working-directory: order-service
+        working-directory: payment-service
         run: chmod +x ./gradlew
 
       - name: Assemble Release JAR Package
-        working-directory: order-service
+        working-directory: payment-service
         run: ./gradlew assemble --no-daemon
 
       - name: Set up Docker Buildx
@@ -98,7 +97,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/order-service
+          images: ghcr.io/${{ github.repository_owner }}/payment-service
           tags: |
             type=raw,value=latest
             type=sha,format=short
@@ -106,8 +105,8 @@ jobs:
       - name: Build and Push Final Docker Image
         uses: docker/build-push-action@v6
         with:
-          context: order-service
-          file: order-service/Dockerfile
+          context: payment-service
+          file: payment-service/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
