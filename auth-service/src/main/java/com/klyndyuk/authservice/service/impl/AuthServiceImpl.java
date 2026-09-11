@@ -1,5 +1,7 @@
 package com.klyndyuk.authservice.service.impl;
 
+import com.klyndyuk.authservice.client.UserClient;
+import com.klyndyuk.authservice.dto.request.CreateUserRequest;
 import com.klyndyuk.authservice.dto.request.LoginRequest;
 import com.klyndyuk.authservice.dto.request.RefreshRequest;
 import com.klyndyuk.authservice.dto.request.RegistrationRequest;
@@ -9,6 +11,7 @@ import com.klyndyuk.authservice.enums.Role;
 import com.klyndyuk.authservice.exception.CredentialsNotFoundException;
 import com.klyndyuk.authservice.exception.InvalidTokenException;
 import com.klyndyuk.authservice.exception.LoginOccupiedException;
+import com.klyndyuk.authservice.exception.RegistrationFailedException;
 import com.klyndyuk.authservice.mapper.CredentialsMapper;
 import com.klyndyuk.authservice.repository.CredentialsRepository;
 import com.klyndyuk.authservice.security.entity.MyUserDetailsWithId;
@@ -39,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserDetailsWithIdService userDetailsService;
+    private final UserClient userClient;
     public static final String DEFAULT_ROLE = "ROLE_USER";
 
     @Override
@@ -53,7 +57,20 @@ public class AuthServiceImpl implements AuthService {
 
         credentials.setRole(Role.valueOf(DEFAULT_ROLE));
 
-        credentialsRepository.save(credentials);
+        credentialsRepository.saveAndFlush(credentials);
+
+        try {
+            CreateUserRequest createUserRequest = new CreateUserRequest();
+            createUserRequest.setId(credentials.getUserId());
+            createUserRequest.setName(request.getName());
+            createUserRequest.setSurname(request.getSurname());
+            createUserRequest.setBirthDate(request.getBirthDate());
+            createUserRequest.setEmail(request.getEmail());
+            userClient.registerUser(createUserRequest);
+        } catch (Exception e) {
+            credentialsRepository.deleteById(credentials.getUserId());
+            throw new RegistrationFailedException();
+        }
     }
 
     @Override

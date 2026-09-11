@@ -18,11 +18,6 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 public abstract class BaseEntity {
-    @Id
-    @GeneratedValue
-    @UuidGenerator
-    @Column(name = "id", nullable = false, updatable = false)
-    private UUID id;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)

@@ -1,4 +1,4 @@
-package com.klyndyuk.userservice.dto.request;
+package com.klyndyuk.authservice.dto.request;
 
 import jakarta.validation.constraints.*;
 import lombok.Getter;

@@ -1,5 +1,6 @@
 package com.klyndyuk.authservice.utils;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 public final class TestConstants {
@@ -22,6 +23,13 @@ public final class TestConstants {
     public static final String REFRESH_TOKEN_HASH = "refresh-token-hash";
 
     public static final long TOKEN_LIFETIME = 60_000L;
+
+    public static final String USER_NAME = "John";
+    public static final String USER_SURNAME = "Smith";
+    public static final String USER_EMAIL = "john.smith@test.com";
+    public static final LocalDate USER_BIRTH_DATE =
+            LocalDate.of(2000, 1, 1);
+
 
     private TestConstants() {
     }

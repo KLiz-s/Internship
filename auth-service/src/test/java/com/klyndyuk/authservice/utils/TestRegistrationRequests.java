@@ -13,6 +13,11 @@ public final class TestRegistrationRequests {
         request.setLogin(TestConstants.LOGIN);
         request.setPassword(TestConstants.PASSWORD);
 
+        request.setName(TestConstants.USER_NAME);
+        request.setSurname(TestConstants.USER_SURNAME);
+        request.setEmail(TestConstants.USER_EMAIL);
+        request.setBirthDate(TestConstants.USER_BIRTH_DATE);
+
         return request;
     }
 }
