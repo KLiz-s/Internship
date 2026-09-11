@@ -16,9 +16,11 @@ public class GatewayRoutesConfig {
             @Value("${user-service.host}") String userServiceHost,
             @Value("${auth-service.host}") String authServiceHost,
             @Value("${order-service.host}") String orderServiceHost,
+            @Value("${payment-service.host}") String paymentServiceHost,
             @Value("${user-service.port}") String userServicePort,
             @Value("${auth-service.port}") String authServicePort,
-            @Value("${order-service.port}") String orderServicePort) {
+            @Value("${order-service.port}") String orderServicePort,
+            @Value("${payment-service.port}") String paymentServicePort) {
 
         return builder
                 .routes()
@@ -36,6 +38,11 @@ public class GatewayRoutesConfig {
                 .route("order-service", route -> route
                         .path("/api/orders/**")
                         .uri(servicesAddressPrefix + orderServiceHost + ":" + orderServicePort)
+                )
+
+                .route("payment-service", route -> route
+                        .path("/api/payments/**")
+                        .uri(servicesAddressPrefix + paymentServiceHost + ":" + paymentServicePort)
                 )
 
                 .build();
