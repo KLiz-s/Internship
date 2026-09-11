@@ -67,17 +67,10 @@ public final class TestPaymentCards {
     public static CreatePaymentCardRequest createCreateRequest() {
         CreatePaymentCardRequest request = new CreatePaymentCardRequest();
 
-        request.setUserId(TestConstants.USER_ID);
         request.setNumber(TestConstants.CARD_NUMBER);
         request.setHolder(TestConstants.CARD_HOLDER);
         request.setExpirationDate(TestConstants.CARD_EXPIRATION_DATE);
 
-        return request;
-    }
-
-    public static CreatePaymentCardRequest createCreateRequest(UUID userId) {
-        CreatePaymentCardRequest request = createCreateRequest();
-        request.setUserId(userId);
         return request;
     }
 

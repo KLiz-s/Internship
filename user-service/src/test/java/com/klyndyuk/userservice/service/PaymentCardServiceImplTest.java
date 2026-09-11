@@ -13,6 +13,7 @@ import com.klyndyuk.userservice.repository.UserRepository;
 import com.klyndyuk.userservice.service.impl.PaymentCardServiceImpl;
 import com.klyndyuk.userservice.util.TestConstants;
 import com.klyndyuk.userservice.util.TestPaymentCards;
+import com.klyndyuk.userservice.util.TestRole;
 import com.klyndyuk.userservice.util.TestUsers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,14 +25,20 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentCardServiceImplTest {
@@ -57,7 +64,7 @@ class PaymentCardServiceImplTest {
     @Test
     void create_shouldReturnCreatedPaymentCard() {
         CreatePaymentCardRequest request = TestPaymentCards.createCreateRequest();
-        User user = TestUsers.createUser();
+        User user = TestUsers.createUser(TestConstants.USER_ID);
         PaymentCard paymentCard = TestPaymentCards.createPaymentCardWithoutUser();
         PaymentCardResponse response = TestPaymentCards.createResponse();
 
@@ -73,7 +80,10 @@ class PaymentCardServiceImplTest {
         given(paymentCardMapper.toResponse(paymentCard))
                 .willReturn(response);
 
-        PaymentCardResponse result = paymentCardService.create(request);
+        PaymentCardResponse result = paymentCardService.create(
+                request,
+                userDetails(TestConstants.USER_ID, TestRole.ROLE_USER)
+        );
 
         assertThat(result).isSameAs(response);
         assertThat(paymentCard.getUser()).isSameAs(user);
@@ -91,7 +101,10 @@ class PaymentCardServiceImplTest {
         given(userRepository.findById(TestConstants.USER_ID))
                 .willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> paymentCardService.create(request))
+        assertThatThrownBy(() -> paymentCardService.create(
+                request,
+                userDetails(TestConstants.USER_ID, TestRole.ROLE_USER)
+        ))
                 .isInstanceOf(UserNotFoundException.class);
 
         then(paymentCardMapper).shouldHaveNoInteractions();
@@ -99,7 +112,8 @@ class PaymentCardServiceImplTest {
 
     @Test
     void getById_shouldReturnPaymentCard() {
-        PaymentCard paymentCard = TestPaymentCards.createPaymentCard();
+        User user = TestUsers.createUser(TestConstants.USER_ID);
+        PaymentCard paymentCard = TestPaymentCards.createPaymentCard(user);
         PaymentCardResponse response = TestPaymentCards.createResponse();
 
         given(paymentCardRepository.findById(TestConstants.PAYMENT_CARD_ID))
@@ -109,7 +123,10 @@ class PaymentCardServiceImplTest {
                 .willReturn(response);
 
         PaymentCardResponse result =
-                paymentCardService.getById(TestConstants.PAYMENT_CARD_ID);
+                paymentCardService.getById(
+                        TestConstants.PAYMENT_CARD_ID,
+                        userDetails(TestConstants.USER_ID, TestRole.ROLE_USER)
+                );
 
         assertThat(result).isSameAs(response);
 
@@ -128,7 +145,10 @@ class PaymentCardServiceImplTest {
                 .willReturn(Optional.empty());
 
         assertThatThrownBy(() ->
-                paymentCardService.getById(TestConstants.PAYMENT_CARD_ID)
+                paymentCardService.getById(
+                        TestConstants.PAYMENT_CARD_ID,
+                        userDetails(TestConstants.USER_ID, TestRole.ROLE_USER)
+                )
         ).isInstanceOf(PaymentCardNotFoundException.class);
 
         then(paymentCardMapper).shouldHaveNoInteractions();
@@ -161,13 +181,11 @@ class PaymentCardServiceImplTest {
 
     @Test
     void getAllByUserId_shouldReturnPaymentCards() {
-        PaymentCard paymentCard = TestPaymentCards.createPaymentCard();
+        User user = TestUsers.createUser(TestConstants.USER_ID);
+        PaymentCard paymentCard = TestPaymentCards.createPaymentCard(user);
         PaymentCardResponse response = TestPaymentCards.createResponse();
 
         List<PaymentCard> list = List.of(paymentCard);
-
-        given(userRepository.findById(TestConstants.USER_ID))
-                .willReturn(Optional.of(TestUsers.createUser()));
 
         given(paymentCardRepository.findAllByUserId(TestConstants.USER_ID))
                 .willReturn(list);
@@ -176,7 +194,10 @@ class PaymentCardServiceImplTest {
                 .willReturn(response);
 
         List<PaymentCardResponse> result =
-                paymentCardService.getAllByUserId(TestConstants.USER_ID);
+                paymentCardService.getAllByUserId(
+                        TestConstants.USER_ID,
+                        userDetails(TestConstants.USER_ID, TestRole.ROLE_USER)
+                );
 
         assertThat(result)
                 .containsExactly(response);
@@ -184,15 +205,14 @@ class PaymentCardServiceImplTest {
         then(paymentCardRepository)
                 .should()
                 .findAllByUserId(TestConstants.USER_ID);
-	then(userRepository)
-                .should()
-        	.findById(TestConstants.USER_ID);
     }
 
     @Test
     void update_shouldReturnUpdatedPaymentCard() {
         UpdatePaymentCardRequest request = TestPaymentCards.createUpdateRequest();
-        PaymentCard paymentCard = TestPaymentCards.createPaymentCard();
+        User user = TestUsers.createUser(TestConstants.USER_ID);
+        PaymentCard paymentCard = TestPaymentCards.createPaymentCard(user);
+        request.setUserId(user.getId());
         PaymentCardResponse response = TestPaymentCards.createResponse();
 
         given(paymentCardRepository.findById(TestConstants.PAYMENT_CARD_ID))
@@ -205,7 +225,11 @@ class PaymentCardServiceImplTest {
                 .willReturn(response);
 
         PaymentCardResponse result =
-                paymentCardService.update(TestConstants.PAYMENT_CARD_ID, request);
+                paymentCardService.update(
+                        TestConstants.PAYMENT_CARD_ID,
+                        request,
+                        userDetails(TestConstants.USER_ID, TestRole.ROLE_USER)
+                );
 
         assertThat(result).isSameAs(response);
 
@@ -226,7 +250,8 @@ class PaymentCardServiceImplTest {
         assertThatThrownBy(() ->
                 paymentCardService.update(
                         TestConstants.PAYMENT_CARD_ID,
-                        TestPaymentCards.createUpdateRequest()
+                        TestPaymentCards.createUpdateRequest(),
+                        userDetails(TestConstants.USER_ID, TestRole.ROLE_USER)
                 )
         ).isInstanceOf(PaymentCardNotFoundException.class);
 
@@ -235,26 +260,33 @@ class PaymentCardServiceImplTest {
 
     @Test
     void updateActive_shouldUpdatePaymentCardStatus() {
-        User user = TestUsers.createUser();
-	PaymentCard paymentCard = TestPaymentCards.createPaymentCard(user);
+        User user = TestUsers.createUser(TestConstants.USER_ID);
+        PaymentCard paymentCard = TestPaymentCards.createPaymentCard(user);
 
-	given(cacheManager.getCache("users"))
-        	.willReturn(cache);
-	
-	given(paymentCardRepository.findById(TestConstants.PAYMENT_CARD_ID))
-        	.willReturn(Optional.of(paymentCard));
+        given(cacheManager.getCache("users"))
+                .willReturn(cache);
+
+        given(paymentCardRepository.findById(TestConstants.PAYMENT_CARD_ID))
+                .willReturn(Optional.of(paymentCard));
 
         given(paymentCardRepository.updateActive(TestConstants.PAYMENT_CARD_ID, true))
-		                .willReturn(1);
-			
-        paymentCardService.updateActive(TestConstants.PAYMENT_CARD_ID, true);
-		
+                .willReturn(1);
+
+        paymentCardService.updateActive(
+                TestConstants.PAYMENT_CARD_ID,
+                true,
+                userDetails(TestConstants.USER_ID, TestRole.ROLE_USER)
+        );
+
         then(paymentCardRepository)
                 .should()
                 .updateActive(TestConstants.PAYMENT_CARD_ID, true);
-	then(paymentCardRepository)
-        	.should()
-        	.findById(TestConstants.PAYMENT_CARD_ID);
+        then(paymentCardRepository)
+                .should()
+                .findById(TestConstants.PAYMENT_CARD_ID);
+        then(cache)
+                .should()
+                .evict(TestConstants.USER_ID);
     }
 
     @Test
@@ -263,11 +295,26 @@ class PaymentCardServiceImplTest {
                 .willReturn(0);
 
         assertThatThrownBy(() ->
-                paymentCardService.updateActive(TestConstants.PAYMENT_CARD_ID, false)
+                paymentCardService.updateActive(
+                        TestConstants.PAYMENT_CARD_ID,
+                        false,
+                        userDetails(TestConstants.USER_ID, TestRole.ROLE_USER)
+                )
         ).isInstanceOf(PaymentCardNotFoundException.class);
 
         then(paymentCardRepository)
                 .should()
                 .updateActive(TestConstants.PAYMENT_CARD_ID, false);
+    }
+
+    private UserDetails userDetails(UUID userId, TestRole role) {
+        UserDetails userDetails = mock(UserDetails.class);
+        SimpleGrantedAuthority authority =
+                new SimpleGrantedAuthority(role.name());
+
+        lenient().when(userDetails.getUsername()).thenReturn(userId.toString());
+        lenient().doReturn(List.of(authority)).when(userDetails).getAuthorities();
+
+        return userDetails;
     }
 }

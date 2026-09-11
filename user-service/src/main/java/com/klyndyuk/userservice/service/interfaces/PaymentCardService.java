@@ -5,24 +5,25 @@ import com.klyndyuk.userservice.dto.request.UpdatePaymentCardRequest;
 import com.klyndyuk.userservice.dto.response.PaymentCardResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface PaymentCardService {
-    PaymentCardResponse create(CreatePaymentCardRequest request);
+    PaymentCardResponse create(CreatePaymentCardRequest request, UserDetails userDetails);
 
-    PaymentCardResponse getById(UUID id);
+    PaymentCardResponse getById(UUID id, UserDetails userDetails);
 
     Page<PaymentCardResponse> getAll(String holder,
                                      Pageable pageable);
 
-    List<PaymentCardResponse> getAllByUserId(UUID userId);
+    List<PaymentCardResponse> getAllByUserId(UUID userId, UserDetails userDetails);
 
     PaymentCardResponse update(UUID id,
-                               UpdatePaymentCardRequest request);
+                               UpdatePaymentCardRequest request, UserDetails userDetails);
 
-    void updateActive(UUID id, boolean active);
+    void updateActive(UUID id, boolean active, UserDetails userDetails);
 
-    void delete(UUID id);
+    void delete(UUID id, UserDetails userDetails);
 }

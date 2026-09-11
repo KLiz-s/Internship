@@ -8,9 +8,11 @@ import com.klyndyuk.userservice.repository.PaymentCardRepository;
 import com.klyndyuk.userservice.repository.UserRepository;
 import com.klyndyuk.userservice.util.TestConstants;
 import com.klyndyuk.userservice.util.TestPaymentCards;
+import com.klyndyuk.userservice.util.TestRole;
 import com.klyndyuk.userservice.util.TestUsers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 import java.util.UUID;
@@ -35,9 +37,10 @@ class PaymentCardControllerTest extends BaseControllerTest {
         User user = userRepository.save(TestUsers.createUser());
 
         CreatePaymentCardRequest request = TestPaymentCards.createCreateRequest();
-        request.setUserId(user.getId());
 
         mockMvc.perform(post("/cards")
+                        .header(HttpHeaders.AUTHORIZATION,
+                                bearerToken(user.getId(), TestRole.ROLE_USER))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -60,10 +63,11 @@ class PaymentCardControllerTest extends BaseControllerTest {
         User user = userRepository.save(TestUsers.createUser());
 
         CreatePaymentCardRequest request = TestPaymentCards.createCreateRequest();
-        request.setUserId(user.getId());
         request.setNumber("");
 
         mockMvc.perform(post("/cards")
+                        .header(HttpHeaders.AUTHORIZATION,
+                                bearerToken(user.getId(), TestRole.ROLE_USER))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
@@ -79,7 +83,8 @@ class PaymentCardControllerTest extends BaseControllerTest {
                 TestPaymentCards.createPaymentCard(user)
         );
 
-        mockMvc.perform(get("/cards/{id}", card.getId()))
+        mockMvc.perform(get("/cards/{id}", card.getId())
+                        .header(HttpHeaders.AUTHORIZATION, adminBearerToken()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(card.getId().toString()))
                 .andExpect(jsonPath("$.holder").value(card.getHolder()))
@@ -91,7 +96,8 @@ class PaymentCardControllerTest extends BaseControllerTest {
 
     @Test
     void getById_shouldReturnNotFound() throws Exception {
-        mockMvc.perform(get("/cards/{id}", UUID.randomUUID()))
+        mockMvc.perform(get("/cards/{id}", UUID.randomUUID())
+                        .header(HttpHeaders.AUTHORIZATION, adminBearerToken()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").exists());
@@ -109,7 +115,8 @@ class PaymentCardControllerTest extends BaseControllerTest {
         secondCard.setNumber(TestConstants.CARD_NUMBER_2);
         paymentCardRepository.save(secondCard);
 
-        mockMvc.perform(get("/cards"))
+        mockMvc.perform(get("/cards")
+                        .header(HttpHeaders.AUTHORIZATION, adminBearerToken()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(2))
                 .andExpect(jsonPath("$.totalElements").value(2))
@@ -131,7 +138,8 @@ class PaymentCardControllerTest extends BaseControllerTest {
         paymentCardRepository.save(firstCard);
         paymentCardRepository.save(secondCard);
 
-        mockMvc.perform(get("/cards/user/{userId}", user.getId()))
+        mockMvc.perform(get("/cards/user/{userId}", user.getId())
+                        .header(HttpHeaders.AUTHORIZATION, adminBearerToken()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].holder").exists())
@@ -152,6 +160,7 @@ class PaymentCardControllerTest extends BaseControllerTest {
         request.setUserId(card.getUser().getId());
 
         mockMvc.perform(put("/cards/{id}", card.getId())
+                        .header(HttpHeaders.AUTHORIZATION, adminBearerToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -181,6 +190,7 @@ class PaymentCardControllerTest extends BaseControllerTest {
         request.setUserId(user.getId());
 
         mockMvc.perform(put("/cards/{id}", UUID.randomUUID())
+                        .header(HttpHeaders.AUTHORIZATION, adminBearerToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
@@ -199,7 +209,8 @@ class PaymentCardControllerTest extends BaseControllerTest {
         card.setActive(false);
         card = paymentCardRepository.save(card);
 
-        mockMvc.perform(patch("/cards/{id}/activate", card.getId()))
+        mockMvc.perform(patch("/cards/{id}/activate", card.getId())
+                        .header(HttpHeaders.AUTHORIZATION, adminBearerToken()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(""));
 
@@ -216,7 +227,8 @@ class PaymentCardControllerTest extends BaseControllerTest {
                 TestPaymentCards.createPaymentCard(user)
         );
 
-        mockMvc.perform(patch("/cards/{id}/deactivate", card.getId()))
+        mockMvc.perform(patch("/cards/{id}/deactivate", card.getId())
+                        .header(HttpHeaders.AUTHORIZATION, adminBearerToken()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(""));
 
@@ -228,7 +240,8 @@ class PaymentCardControllerTest extends BaseControllerTest {
 
     @Test
     void activate_shouldReturnNotFound() throws Exception {
-        mockMvc.perform(patch("/cards/{id}/activate", UUID.randomUUID()))
+        mockMvc.perform(patch("/cards/{id}/activate", UUID.randomUUID())
+                        .header(HttpHeaders.AUTHORIZATION, adminBearerToken()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").exists());
@@ -236,7 +249,8 @@ class PaymentCardControllerTest extends BaseControllerTest {
 
     @Test
     void deactivate_shouldReturnNotFound() throws Exception {
-        mockMvc.perform(patch("/cards/{id}/deactivate", UUID.randomUUID()))
+        mockMvc.perform(patch("/cards/{id}/deactivate", UUID.randomUUID())
+                        .header(HttpHeaders.AUTHORIZATION, adminBearerToken()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").exists());
@@ -253,10 +267,11 @@ class PaymentCardControllerTest extends BaseControllerTest {
         }
 
         CreatePaymentCardRequest request = TestPaymentCards.createCreateRequest();
-        request.setUserId(user.getId());
         request.setNumber("5555555555555555");
 
         mockMvc.perform(post("/cards")
+                        .header(HttpHeaders.AUTHORIZATION,
+                                bearerToken(user.getId(), TestRole.ROLE_USER))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
@@ -279,7 +294,8 @@ class PaymentCardControllerTest extends BaseControllerTest {
         paymentCardRepository.save(first);
         paymentCardRepository.save(second);
 
-        mockMvc.perform(get("/users/{id}", user.getId()))
+        mockMvc.perform(get("/users/{id}", user.getId())
+                        .header(HttpHeaders.AUTHORIZATION, adminBearerToken()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(user.getId().toString()))
                 .andExpect(jsonPath("$.paymentCards.length()").value(2));
@@ -299,6 +315,7 @@ class PaymentCardControllerTest extends BaseControllerTest {
         request.setUserId(secondUser.getId());
 
         mockMvc.perform(put("/cards/{id}", card.getId())
+                        .header(HttpHeaders.AUTHORIZATION, adminBearerToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
