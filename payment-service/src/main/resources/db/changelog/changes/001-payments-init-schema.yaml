@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet: 
+      id: 001-create-payments-schema
+      author: eklyndyuk
+      changes:
+        - createCollection:
+            collectionName: payments
+
+  - changeSet:
+      id: 002-create-payments-indexes
+      author: eklyndyuk
+      changes:
+        - createIndex:
+            collectionName: payments
+            indexName: idx_payments_order_id
+            keys:
+              order_id: 1
+
+        - createIndex:
+            collectionName: payments
+            indexName: idx_payments_order_id_user_id
+            keys:
+              order_id: 1
+              user_id: 1
+
+        - createIndex:
+            collectionName: payments
+            indexName: idx_payments_user_id
+            keys:
+              user_id: 1
+
+        - createIndex:
+            collectionName: payments
+            indexName: idx_payments_status
+            keys:
+              status: 1
+
+        - createIndex:
+            collectionName: payments
+            indexName: idx_payments_timestamp
+            keys:
+              timestamp: 1
+
+        - createIndex:
+            collectionName: payments
+            indexName: idx_payments_user_id_timestamp
+            keys:
+              user_id: 1
+              timestamp: 1
