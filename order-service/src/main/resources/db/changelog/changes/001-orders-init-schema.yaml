@@ -1,0 +1,71 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-orders-schema
+      author: eklyndyuk
+      changes:
+        - createTable:
+            tableName: orders
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: total_price
+                  type: decimal(10,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: deleted
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: orders
+            indexName: idx_orders_id_deleted
+            columns:
+              - column:
+                  name: id
+              - column:
+                  name: deleted
+        - createIndex:
+            tableName: orders
+            indexName: idx_orders_user_id_deleted
+            columns:
+              - column:
+                  name: user_id
+              - column:
+                  name: deleted
+        - createIndex:
+            tableName: orders
+            indexName: idx_orders_status_created_at_deleted
+            columns:
+              - column:
+                  name: status
+              - column:
+                  name: created_at
+              - column:
+                  name: deleted
