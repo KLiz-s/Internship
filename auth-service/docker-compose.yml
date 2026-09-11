@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: auth-service-postgres
+    environment:
+      POSTGRES_DB: ${AUTH_SERVICE_POSTGRES_DB}
+      POSTGRES_USER: ${AUTH_SERVICE_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${AUTH_SERVICE_POSTGRES_PASSWORD}
+    ports:
+      - "${AUTH_SERVICE_POSTGRES_PORT}:${AUTH_SERVICE_POSTGRES_PORT}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${AUTH_SERVICE_POSTGRES_USER} -d ${AUTH_SERVICE_POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+  auth-service:
+    build: .
+    container_name: auth-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+      DB_URL: jdbc:postgresql://postgres:${AUTH_SERVICE_POSTGRES_PORT}/${AUTH_SERVICE_POSTGRES_DB}
+      DB_USERNAME: ${AUTH_SERVICE_POSTGRES_USER}
+      DB_PASSWORD: ${AUTH_SERVICE_POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+
+    ports:
+      - "${AUTH_SERVICE_SERVICE_PORT}:${AUTH_SERVICE_SERVICE_PORT}"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
