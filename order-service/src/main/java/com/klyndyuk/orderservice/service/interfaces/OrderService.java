@@ -3,6 +3,7 @@ package com.klyndyuk.orderservice.service.interfaces;
 import com.klyndyuk.orderservice.dto.request.CreateOrderRequest;
 import com.klyndyuk.orderservice.dto.request.UpdateOrderRequest;
 import com.klyndyuk.orderservice.dto.response.OrderResponse;
+import com.klyndyuk.orderservice.kafka.event.CreatePaymentEvent;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,4 +24,6 @@ public interface OrderService {
     OrderResponse update(UUID id, UpdateOrderRequest updateOrderRequest, UserDetails userDetails);
 
     void deleteById(UUID id, UserDetails userDetails);
+
+    void handlePaymentEvent(CreatePaymentEvent event);
 }

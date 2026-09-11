@@ -11,6 +11,7 @@ import com.klyndyuk.orderservice.entity.OrderItem;
 import com.klyndyuk.orderservice.exception.AccessDeniedException;
 import com.klyndyuk.orderservice.exception.ItemNotFoundException;
 import com.klyndyuk.orderservice.exception.OrderNotFoundException;
+import com.klyndyuk.orderservice.kafka.event.CreatePaymentEvent;
 import com.klyndyuk.orderservice.mapper.OrderItemMapper;
 import com.klyndyuk.orderservice.mapper.OrderMapper;
 import com.klyndyuk.orderservice.repository.ItemRepository;
@@ -151,6 +152,22 @@ public class OrderServiceImpl implements OrderService {
         } else {
             throw new AccessDeniedException();
         }
+    }
+
+    @Override
+    @Transactional
+    public void handlePaymentEvent(CreatePaymentEvent event) {
+
+        Order order = orderRepository.findById(event.orderId())
+                .orElseThrow(() -> new OrderNotFoundException(event.orderId()));
+
+        if (event.status().equals("SUCCESS")) {
+            order.setStatus("PAID");
+        } else {
+            order.setStatus("PAYMENT_FAILED");
+        }
+
+        orderRepository.save(order);
     }
 
     private UserResponse getUserById(String userId) {

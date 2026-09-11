@@ -2,6 +2,7 @@ package com.klyndyuk.orderservice.service;
 
 import com.klyndyuk.orderservice.client.UserClient;
 import com.klyndyuk.orderservice.dto.request.CreateOrderRequest;
+import com.klyndyuk.orderservice.kafka.event.CreatePaymentEvent;
 import com.klyndyuk.orderservice.util.DateAndStatusRequest;
 import com.klyndyuk.orderservice.dto.request.UpdateOrderRequest;
 import com.klyndyuk.orderservice.dto.response.OrderResponse;
@@ -40,13 +41,13 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceImplTest {
@@ -365,6 +366,78 @@ class OrderServiceImplTest {
 
         then(orderRepository).should(never()).save(any());
         then(orderMapper).shouldHaveNoInteractions();
+    }
+
+    @Test
+    void handlePaymentEvent_whenPaymentSuccessful_shouldSetOrderStatusToPaid() {
+        UUID orderId = UUID.randomUUID();
+
+        Order order = new Order();
+        order.setId(orderId);
+        order.setStatus("CREATED");
+
+        CreatePaymentEvent event =
+                new CreatePaymentEvent(
+                        UUID.randomUUID(),
+                        orderId,
+                        "SUCCESS"
+                );
+
+        when(orderRepository.findById(orderId))
+                .thenReturn(Optional.of(order));
+
+        orderService.handlePaymentEvent(event);
+
+        assertEquals("PAID", order.getStatus());
+
+        verify(orderRepository).save(order);
+    }
+
+    @Test
+    void handlePaymentEvent_whenPaymentFailed_shouldSetOrderStatusToPaymentFailed() {
+        UUID orderId = UUID.randomUUID();
+
+        Order order = new Order();
+        order.setId(orderId);
+        order.setStatus("CREATED");
+
+        CreatePaymentEvent event =
+                new CreatePaymentEvent(
+                        UUID.randomUUID(),
+                        orderId,
+                        "FAILED"
+                );
+
+        when(orderRepository.findById(orderId))
+                .thenReturn(Optional.of(order));
+
+        orderService.handlePaymentEvent(event);
+
+        assertEquals("PAYMENT_FAILED", order.getStatus());
+
+        verify(orderRepository).save(order);
+    }
+
+    @Test
+    void handlePaymentEvent_whenOrderNotFound_shouldThrowException() {
+        UUID orderId = UUID.randomUUID();
+
+        CreatePaymentEvent event =
+                new CreatePaymentEvent(
+                        UUID.randomUUID(),
+                        orderId,
+                        "SUCCESS"
+                );
+
+        when(orderRepository.findById(orderId))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                OrderNotFoundException.class,
+                () -> orderService.handlePaymentEvent(event)
+        );
+
+        verify(orderRepository, never()).save(any());
     }
 
     private UserDetails userDetails(UUID userId, TestRole role) {
