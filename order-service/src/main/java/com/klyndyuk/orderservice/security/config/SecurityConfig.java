@@ -32,6 +32,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                            "/actuator/health",
+                            "/actuator/health/liveness",
+                            "/actuator/health/readiness"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
 

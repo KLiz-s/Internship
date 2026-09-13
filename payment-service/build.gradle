@@ -25,6 +25,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.liquibase:liquibase-core:5.0.4'
     implementation 'org.liquibase.ext:liquibase-mongodb:5.0.4'
     implementation 'org.mapstruct:mapstruct:1.6.3'

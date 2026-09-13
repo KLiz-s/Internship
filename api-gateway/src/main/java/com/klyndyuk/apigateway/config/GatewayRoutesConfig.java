@@ -12,42 +12,37 @@ public class GatewayRoutesConfig {
     @Bean
     public RouteLocator routes(
             RouteLocatorBuilder builder,
-            @Value("${services.address.prefix}") String servicesAddressPrefix,
-            @Value("${user-service.host}") String userServiceHost,
-            @Value("${auth-service.host}") String authServiceHost,
-            @Value("${order-service.host}") String orderServiceHost,
-            @Value("${payment-service.host}") String paymentServiceHost,
-            @Value("${user-service.port}") String userServicePort,
-            @Value("${auth-service.port}") String authServicePort,
-            @Value("${order-service.port}") String orderServicePort,
-            @Value("${payment-service.port}") String paymentServicePort) {
-
+              @Value("${user-service.url}") String userServiceUrl,
+              @Value("${auth-service.url}") String authServiceUrl,
+              @Value("${order-service.url}") String orderServiceUrl,
+              @Value("${payment-service.url}") String paymentServiceUrl) {
+                
         return builder
                 .routes()
 
                 .route("user-service", route -> route
                         .path("/api/users/**")
-                        .uri(servicesAddressPrefix + userServiceHost + ":" + userServicePort)
+                        .uri(userServiceUrl)
                 )
 
                 .route("user-service-cards", route -> route
                         .path("/api/cards/**")
-                        .uri(servicesAddressPrefix + userServiceHost + ":" + userServicePort)
+                        .uri(userServiceUrl)
                 )
 
                 .route("auth-service", route -> route
                         .path("/api/auth/**")
-                        .uri(servicesAddressPrefix + authServiceHost + ":" + authServicePort)
+                        .uri(authServiceUrl)
                 )
 
                 .route("order-service", route -> route
                         .path("/api/orders/**")
-                        .uri(servicesAddressPrefix + orderServiceHost + ":" + orderServicePort)
+                        .uri(orderServiceUrl)
                 )
 
                 .route("payment-service", route -> route
                         .path("/api/payments/**")
-                        .uri(servicesAddressPrefix + paymentServiceHost + ":" + paymentServicePort)
+                        .uri(paymentServiceUrl)
                 )
 
                 .build();

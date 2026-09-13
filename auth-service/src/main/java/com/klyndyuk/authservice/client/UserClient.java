@@ -24,6 +24,7 @@ public class UserClient {
     }
 
     public UserResponse registerUserFallback(CreateUserRequest createUserRequest, Throwable throwable) {
+        System.err.println("Failed to register user: " + throwable.getMessage());
         throw new ConnectionFailedException("User service is unavailable. Please try again later or try other email.");
     }
 }

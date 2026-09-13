@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: microservices-config
+  namespace: microservices
+data:
+  USER_SERVICE_POSTGRES_DB: "user_db"
+  USER_SERVICE_POSTGRES_USER: "admin"
+
+  AUTH_SERVICE_POSTGRES_DB: "auth_db"
+  AUTH_SERVICE_POSTGRES_USER: "admin"
+
+  ORDER_SERVICE_POSTGRES_DB: "order_db"
+  ORDER_SERVICE_POSTGRES_USER: "admin"
+
+  PAYMENT_SERVICE_MONGO_INITDB_DATABASE: "payment_db"
+
+  USER_SERVICE_SERVICE_PORT: "8080"
+  AUTH_SERVICE_SERVICE_PORT: "8081"
+  ORDER_SERVICE_SERVICE_PORT: "8082"
+  API_GATEWAY_SERVICE_PORT: "8083"
+  PAYMENT_SERVICE_SERVICE_PORT: "8084"
+
+  USER_SERVICE_URL: "http://user-service:8080"
+
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+
+  SERVICES_ADDRESS_PREFIX: "http://"
+
+  USER_SERVICE_SERVICE_HOST: "user-service"
+  ORDER_SERVICE_SERVICE_HOST: "order-service"
+  AUTH_SERVICE_SERVICE_HOST: "auth-service"
+  PAYMENT_SERVICE_SERVICE_HOST: "payment-service"
+
+  USER_SERVICE_PORT: "8080"
+  AUTH_SERVICE_PORT: "8081"
+  ORDER_SERVICE_PORT: "8082"
+  PAYMENT_SERVICE_PORT: "8084"
+
+  USER_SERVICE_URL: "http://user-service:8080"
+  AUTH_SERVICE_URL: "http://auth-service:8081"
+  ORDER_SERVICE_URL: "http://order-service:8082"
+  PAYMENT_SERVICE_URL: "http://payment-service:8084"
